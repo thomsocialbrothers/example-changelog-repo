@@ -1,6 +1,11 @@
 on:
-  pull-request:
+  pull_request:
     branches:
       - test
 
-jobs: check
+jobs:
+  check-diff-release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check diff"
+        run: git diff --exit-code test..${{context.github.head_ref}}
