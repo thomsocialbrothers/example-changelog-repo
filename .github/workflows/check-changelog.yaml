@@ -18,9 +18,9 @@ jobs:
           DIFF="$(git diff ..origin/test RELEASE.md)"
 
           if [ ${#DIFF} -eq 0 ]; then
-              echo "No changes detected"
+              echo "There were no changes detected in the release notes. Make sure to update RELEASE.md with the changes that are done in this update."
               exit 1
           else
-              echo "Changes detected"
+              echo "README.md is changed."
               exit 0
           fi
