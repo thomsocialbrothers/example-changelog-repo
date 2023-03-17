@@ -4,7 +4,7 @@ on:
       - test
 
 jobs:
-  increase-version-patch-and-create-tag:
+  create-release:
     runs-on: ubuntu-latest
     steps:
       - name: "Upgrade version patch"
@@ -14,28 +14,33 @@ jobs:
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.2.3
 
-      - name: Create/Update tag
-        uses: rickstaa/action-create-tag@v1.6.1
+      - name: Set current package version
+        run: 'echo "PACKAGE_VERSION=${{steps.package-version.outputs.current-version}}" >> $GITHUB_ENV'
+        shell: "bash"
+
+      - name: "Create release"
+        uses: "actions/github-script@v6.3.3"
+
         with:
-          tag: ${{ steps.package-version.outputs.current-version}}
+          github-token: "${{ inputs.github-token }}"
+          script: |
+            try {
+              const response = await github.rest.repos.createRelease({
+                draft: false,
+                generate_release_notes: true,
+                name: `${process.env.PACKAGE_VERSION}-test`,
+                owner: context.repo.owner,
+                prerelease: true,
+                repo: context.repo.repo,
+                tag_name: process.env.PACKAGE_VERSION,
+              });
 
-  create-tag:
-    runs-on: ubuntu-latest
+              core.exportVariable('RELEASE_ID', response.data.id);
+              core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
+            } catch (error) {
+              core.setFailed(error.message);
+            }
 
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: rickstaa/action-create-tag@v1
-        id: "tag_create"
-        with:
-          tag: "latest"
-          tag_exists_error: false
-          message: "Latest release"
-
-  create-release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses
 # On web, creation of releases will be done on deployment_status.
 # Release will have the commit specific link as release link.
 # Also, the branch specific link will be provided to see the latest release of this type
