@@ -14,4 +14,13 @@ jobs:
         name: Fetching remote
 
       - name: "Check diff"
-        run: git diff --exit-code ..origin/test RELEASE.md
+        run: |
+          DIFF="$(git diff ..origin/test RELEASE.md)"
+
+          if [ ${#DIFF} -eq 0 ]; then
+              echo "No changes detected"
+              exit 1
+          else
+              echo "Changes detected"
+              exit 0
+          fi
