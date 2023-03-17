@@ -40,7 +40,7 @@ jobs:
             const { readFile } = require('node:fs');
 
             try {
-                body: readFile("RELEASE.md", async function(err, contents){
+                body: readFile("RELEASE.md", "utf8", async function(err, contents){
                   if (err) {
                     throw new Error(err);
                   }
