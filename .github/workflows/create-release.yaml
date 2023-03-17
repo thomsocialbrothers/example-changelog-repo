@@ -1,0 +1,41 @@
+on:
+  push:
+    branches:
+      - test
+
+jobs:
+  increase-version-patch-and-create-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Upgrade version patch"
+        run: "pnpm version patch"
+
+      - name: Get current package version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.2.3
+
+      - name: Create/Update tag
+        uses: rickstaa/action-create-tag@v1.6.1
+        with:
+          tag: ${{ steps.package-version.outputs.current-version}}
+
+  create-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: rickstaa/action-create-tag@v1
+        id: "tag_create"
+        with:
+          tag: "latest"
+          tag_exists_error: false
+          message: "Latest release"
+
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses
+# On web, creation of releases will be done on deployment_status.
+# Release will have the commit specific link as release link.
+# Also, the branch specific link will be provided to see the latest release of this type

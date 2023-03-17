@@ -1,0 +1,6 @@
+on:
+  pull-request:
+    branches:
+      - test
+
+jobs: check
