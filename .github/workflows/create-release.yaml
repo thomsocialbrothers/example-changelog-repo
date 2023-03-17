@@ -37,7 +37,7 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           script: |
-            import { readFile } from 'node:fs';
+            const { readFile } = require('node:fs');
 
             try {
                 body: fs.readFile("RELEASE.md", async function(err, contents){
