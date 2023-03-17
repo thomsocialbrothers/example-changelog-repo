@@ -12,6 +12,8 @@ jobs:
 
       - name: "Install pnpm"
         uses: pnpm/action-setup@v2
+        with:
+          version: 7.x.x
 
       - name: "Upgrade version patch"
         run: "pnpm version patch"
