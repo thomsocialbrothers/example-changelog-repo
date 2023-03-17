@@ -35,7 +35,7 @@ jobs:
         uses: "actions/github-script@v6.3.3"
 
         with:
-          github-token: "${{ inputs.github-token }}"
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
           script: |
             try {
               const response = await github.rest.repos.createRelease({
