@@ -7,6 +7,9 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
+      - name: "Install pnpm"
+        uses: pnpm/action-setup@v2
+
       - name: "Upgrade version patch"
         run: "pnpm version patch"
 
