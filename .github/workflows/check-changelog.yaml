@@ -1,6 +1,28 @@
 on:
-  pull-request:
+  pull_request:
     branches:
       - test
+      - acceptance
+      - master
 
-jobs: check
+jobs:
+  check-diff-release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v3
+
+      - run: git fetch --all
+        name: Fetching remote
+
+      - name: "Check diff"
+        run: |
+          DIFF="$(git diff ..origin/$GITHUB_BASE_REF RELEASE.md)"
+
+          if [ ${#DIFF} -eq 0 ]; then
+              echo "There were no changes detected in the release notes. Make sure to update RELEASE.md with the changes that are done in this update."
+              exit 1
+          else
+              echo "README.md is changed."
+              exit 0
+          fi
