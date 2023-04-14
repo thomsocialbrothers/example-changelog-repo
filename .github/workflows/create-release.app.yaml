@@ -1,9 +1,12 @@
-on: deployment_status
+on:
+  push:
+    branches:
+      # - test
+      - never # Temporarily disable
 
 jobs:
   create-release:
     runs-on: ubuntu-latest
-    if: github.event.deployment_status.state == 'success'
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v3
@@ -27,12 +30,6 @@ jobs:
 
       - name: Set current package version
         run: 'echo "PACKAGE_VERSION=${{steps.package-version.outputs.current-version}}" >> $GITHUB_ENV'
-        shell: "bash"
-
-      - name: Output Github context for debugging
-        env:
-          GIpTHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
         shell: "bash"
 
       - name: "Create release"
