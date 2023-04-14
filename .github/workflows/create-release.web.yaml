@@ -1,0 +1,70 @@
+on: deployment_status
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    if: github.event.deployment_status.state == 'success'
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v3
+
+      - name: "Install pnpm"
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7.x.x
+
+      - name: "Set GIT user"
+        run: |
+          git config user.email "app@socialbrothers.nl"
+          git config user.name "2Digits CI"
+
+      - name: "Upgrade version patch"
+        run: "pnpm version patch"
+
+      - name: Get current package version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.2.3
+
+      - name: Set current package version
+        run: 'echo "PACKAGE_VERSION=${{steps.package-version.outputs.current-version}}" >> $GITHUB_ENV'
+        shell: "bash"
+
+      - name: Output Github context for debugging
+        env:
+          GIpTHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+        shell: "bash"
+
+      - name: "Create release"
+        uses: "actions/github-script@v6.3.3"
+
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          script: |
+            const { readFile } = require('node:fs');
+
+            try {
+                body: readFile("RELEASE.md", "utf8", async function(err, contents){
+                  if (err) {
+                    throw new Error(err);
+                  }
+
+                  const response = await github.rest.repos.createRelease({
+                    draft: false,
+                    generate_release_notes: true,
+                    name: `${process.env.PACKAGE_VERSION}-test`,
+                    owner: context.repo.owner,
+                    prerelease: true,
+                    repo: context.repo.repo,
+                    tag_name: process.env.PACKAGE_VERSION,
+                    body: contents
+                  });
+
+                  core.exportVariable('RELEASE_ID', response.data.id);
+                  core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
+                })
+            } catch (error) {
+              core.setFailed(error.message);
+            }
+      - name: Push changes to remote
+        run: git push

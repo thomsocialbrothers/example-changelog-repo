@@ -1,7 +1,8 @@
 on:
   push:
     branches:
-      - test
+      # - test
+      - never # Temporarily disable
 
 jobs:
   create-release:
@@ -64,6 +65,3 @@ jobs:
             }
       - name: Push changes to remote
         run: git push
-# On web, creation of releases will be done on deployment_status.
-# Release will have the commit specific link as release link.
-# Also, the branch specific link will be provided to see the latest release of this type
